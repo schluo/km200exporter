@@ -7,13 +7,20 @@ The heating system can be controlled via the Buderus website <https://www.buderu
 
 ## requirements
 
-The crawler needs a password you first have to set via the mobile phone app.
+- Because of the use of string literals Python >= 3.6 is required
+- The crawler needs a password you first have to set via the mobile phone app.
 
 ## example
 
     python3 crawler.py --km200_gateway_password=GATEWAY-PASSWORD --km200_private_password=MOBILE-APP-PASSWORD --km200_host=buderus.fritz.box
 
 ## changelog
+
+### [0.0.2] - 2020-01-04
+
+#### Added
+
+- pip requirements.txt
 
 ### [0.0.1] - 2020-01-04
 
