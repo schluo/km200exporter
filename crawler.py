@@ -31,7 +31,8 @@ class KM200Crawler(BaseHTTPRequestHandler):
         self.end_headers()
 
         for api in [self.path] if self.path != '/' else BUDERUS_KNOWN_APIS:
-            self.query(f'http://{self.km200_host}{api}')
+            result = self.query(f'http://{self.km200_host}{api}')
+            self.wfile.write(bytes(result, "utf-8"))
 
     def log_message(self, format, *args):
         return
@@ -48,50 +49,60 @@ class KM200Crawler(BaseHTTPRequestHandler):
 
         return part1.digest()[:32] + part2.digest()[:32]
 
+    def decrypt_response_data(self, data):
+        decoded = base64.b64decode(data)
+        decrypted_bytes = self.cipher.decrypt(decoded)
+        logging.debug(decrypted_bytes)
+
+        plaintext = decrypted_bytes.decode('UTF-8').replace('\0', '')
+        return json.loads(plaintext)
+
     def query(self, uri):
         try:
-            request = self.pool_manager.request('GET', uri, headers={'User-Agent': 'TeleHeater', 'Content-type': 'application/json; charset=utf-8'})
+            if uri.endswith('gateway/firmware'):
+                return
 
-            if request.status == HTTPStatus.OK:
-                request_data = base64.b64decode(request.data)
-                decrypted = self.cipher.decrypt(request_data)
-                logging.debug(decrypted)
+            response = self.pool_manager.request('GET', uri, headers={'User-Agent': 'TeleHeater', 'Content-type': 'application/json; charset=utf-8'})
 
-                plaintext = decrypted.decode('UTF-8').replace('\0', '')
-                plaintext_json = json.loads(plaintext)
+            if response.status == HTTPStatus.OK:
+                response_json = self.decrypt_response_data(response.data)
 
-                if plaintext_json['type'] == 'refEnum':
-                    for reference in plaintext_json['references']:
-                        self.query(reference['uri'])
+                if response_json['type'] == 'refEnum':
+                    results = ''
+
+                    for reference in response_json['references']:
+                        result = self.query(reference['uri'])
+
+                        if result:
+                            results += result
+
+                    return results
 
                 else:
-                    metric = self.get_prometheus_metric(plaintext_json)
-
-                    if metric:
-                        self.wfile.write(bytes(metric, "utf-8"))
+                    return self.get_prometheus_metric(response_json)
 
             else:
-                logging.warning(f"'{uri}' request was not successfull: {request.status} {HTTPStatus(request.status).phrase}")
+                logging.warning(f"'{uri}' request was not successfull: {response.status} {HTTPStatus(response.status).phrase}")
 
         except Exception:
             logging.exception(f"'{uri}' error while processing")
 
-    def get_prometheus_metric(self, data):
-        metric_name = f"km200{data['id'].replace('/','_')}"
+    def get_prometheus_metric(self, json):
+        metric_name = f"km200{json['id'].replace('/','_')}"
 
-        if data['type'] == 'stringValue':
+        if json['type'] == 'stringValue':
 
-            if 'allowedValues' in data and data['allowedValues'] in [["off", "on"], ["false", "true"], ["INACTIVE", "ACTIVE"], ["stop", "start"]]:
-                return f"{metric_name} {'1' if data['value'].lower() in ['on', 'true', 'active', 'start'] else '0'}\n"
+            if 'allowedValues' in json and json['allowedValues'] in [["off", "on"], ["false", "true"], ["INACTIVE", "ACTIVE"], ["stop", "start"]]:
+                return f"{metric_name} {'1' if json['value'].lower() in ['on', 'true', 'active', 'start'] else '0'}\n"
 
             else:
-                return f"{metric_name}{{value=\"{data['value']}\"}} 1\n"
+                return f"{metric_name}{{value=\"{json['value']}\"}} 1\n"
 
-        elif data['type'] == 'floatValue':
-            return f"{metric_name}{{unitOfMeasure=\"{data['unitOfMeasure']}\"}} {data['value']}\n"
+        elif json['type'] == 'floatValue':
+            return f"{metric_name}{{unitOfMeasure=\"{json['unitOfMeasure']}\"}} {json['value']}\n"
 
         else:
-            logging.warning(f"Unhandled data type: {data}")
+            logging.warning(f"Unhandled data type: {json}")
 
 
 def get_cli_args():
