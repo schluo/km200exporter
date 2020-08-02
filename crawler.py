@@ -32,7 +32,8 @@ class KM200Crawler(BaseHTTPRequestHandler):
 
         for api in [self.path] if self.path != '/' else BUDERUS_KNOWN_APIS:
             result = self.query(f'http://{self.km200_host}{api}')
-            self.wfile.write(bytes(result, "utf-8"))
+            if result:
+                self.wfile.write(bytes(result, "utf-8"))
 
     def log_message(self, format, *args):
         return
