@@ -20,4 +20,4 @@ RUN pip install -r requirements.txt
 COPY prometheus_crawler.py/ .
 
 # command to run on container start
-CMD [ "python", "./prometheus_crawler.py" , "--km200_gateway_password=${km200_gateway_password}", "--km200_private_password=${km200_private_password}", "--km200_host=${km200_host}", "--exporter_port=${exporter_port}" ]
+CMD [ "python", "./km200exporter.py" , "--km200_gateway_password=${km200_gateway_password}", "--km200_private_password=${km200_private_password}", "--km200_host=${km200_host}", "--exporter_port=${exporter_port}" ]
