@@ -14,5 +14,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
-       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Push to GitHub Packages
+      uses: docker/build-push-action@v1
+      with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: dirklausen/km200exporter/km200exporter
+          tag_with_ref: true
+
