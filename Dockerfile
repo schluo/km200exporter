@@ -17,7 +17,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy the content of the local src directory to the working directory
-COPY prometheus_crawler.py/ .
+COPY km200exporter.py/ .
 
 # command to run on container start
 CMD [ "python", "./km200exporter.py" , "--km200_gateway_password=${km200_gateway_password}", "--km200_private_password=${km200_private_password}", "--km200_host=${km200_host}", "--exporter_port=${exporter_port}" ]
