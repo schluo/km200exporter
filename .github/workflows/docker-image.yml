@@ -15,4 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag km200exporter:$(date +%s)
+      with:
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd64,linux/arm64,linux/386
+        push: true
+        tags: user/app:latest
