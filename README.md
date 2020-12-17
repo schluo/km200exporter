@@ -12,7 +12,8 @@ The heating system can be controlled via the Buderus website <https://www.buderu
 
 ## example
 
-    python3 crawler.py --km200_gateway_password=GATEWAY-PASSWORD --km200_private_password=MOBILE-APP-PASSWORD --km200_host=buderus.fritz.box
+    
+    docker run -ti -p 9202:9202 -e km200_gateway_password= -e km200_private_password= -e km200_host=192.168.68.125 -e exporter_port=9202  km200exporter:latest
 
 ## changelog
 
