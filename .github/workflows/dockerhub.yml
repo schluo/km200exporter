@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Docker Login
+      env:
+         DOCKER_USER: ${{secrets.DOCKER_USER}}
+         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+    - uses: actions/checkout@v3
+    - name: docker
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag km200exportertest:$(date +%s)
+    - name: Docker Push
+      run: docker push ${{secrets.DOCKER_USER}}/km200test
