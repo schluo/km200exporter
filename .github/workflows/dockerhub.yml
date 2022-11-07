@@ -17,6 +17,7 @@ jobs:
       env:
          DOCKER_USER: ${{secrets.DOCKER_USER}}
          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - uses: actions/checkout@v3
     - name: docker
     - name: Build the Docker image
