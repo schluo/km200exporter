@@ -1,0 +1,15 @@
+version: "2.2"
+services:
+  km200exporter:
+    image: km200exporter
+    container_name: km200exporter
+    restart: unless-stopped
+    user: '1000'
+    ports:
+      - 9202:9202
+    environment:
+      - km200_gateway_password=gateway_password
+      - km200_private_password=password
+      - km200_host=192.168.1.15
+      - exporter_port=9202
+      - loglevel=WARNING
