@@ -13,13 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Docker Login
+    - uses: actions/checkout@v3
+    - name: docker login
       env:
          DOCKER_USER: ${{secrets.DOCKER_USER}}
          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-    - uses: actions/checkout@v3
-    - name: docker
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag km200exportertest:$(date +%s)
     - name: Docker Push
