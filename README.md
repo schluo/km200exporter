@@ -1,30 +1,22 @@
-# km200prometheus
+# Buderus/Bosch KM200 Exporter for Prometheus
+Python based Prometheus Exporter
 
-Python crwaler for a Buderus Heating System Web KM200 endpoint.
-When the crawler is called, all known APIs are called recursively and the obtained information is made available as prometheus metric.
+Can be used as Python Code or as Docker Container. 
 
-The heating system can be controlled via the Buderus website <https://www.buderus-connect.de> or by the [Buderus MyDevice](https://play.google.com/store/apps/details?id=com.bosch.tt.buderus) app from your mobile phone.
+Creation of Docker Container:
 
-## requirements
+      docker build --tag km200exporter .
 
-- Because of the use of string literals Python >= 3.6 is required
-- The crawler needs a password you first have to set via the mobile phone app.
+Starting of Docker Container with docker-compose
 
-## example
+      docker-compose up -d
 
-    
-    docker run -ti -p 9202:9202 -e km200_gateway_password= -e km200_private_password= -e km200_host=192.168.68.125 -e exporter_port=9202  km200exporter:latest
+Credential, Ports and Polling Interval are given by environmental variables (see also the docker-compose.yml file)
 
-## changelog
+    km200_gateway_password=gateway_password
+    km200_private_password=password
+    km200_host=<IP>
+    exporter_port=9202
+    loglevel=WARNING
 
-### [0.0.2] - 2020-01-04
-
-#### Added
-
-- pip requirements.txt
-
-### [0.0.1] - 2020-01-04
-
-#### Added
-
-- Functionalitiy to provide buderus heating system data as prometheus metric
+A Grafana Dashboard example is also provided as JSON template
