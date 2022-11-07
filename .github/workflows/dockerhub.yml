@@ -20,6 +20,6 @@ jobs:
          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD docker.io
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag km200test_latest
+      run: docker build . --file Dockerfile --tag km200test:latest
     - name: Docker Push
       run: docker push km200test:latest
